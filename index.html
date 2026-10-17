@@ -2368,7 +2368,8 @@ setTimeout(loadWebFonts,400);
   }
 
   // Fetch all images from a Fandom article
-  async function fetchFandomImages(info) {
+  async function fetchFandomImagesRaw(info) {
+    let netFailed = false;
     const cacheKey = 'fd_v2:' + info.host + (info.langPrefix || '') + '/' + info.title;
     const cached = load(cacheKey);
     if (cached) {
@@ -2403,14 +2404,14 @@ setTimeout(loadWebFonts,400);
           }
         }
       } catch (err) {
-        console.warn('[FandomCarousel] Failed to fetch specific file:', err);
+        console.warn('[FandomCarousel] Failed to fetch specific file:', err, (err && err.name === 'TypeError' && (netFailed = true)));
       }
     }
 
     // Generator query: fetch images attached to the article
     try {
       const genUrl = `${apiBase}?action=query&generator=images&titles=${encodeURIComponent(info.title)}&gimlimit=40&prop=imageinfo&iiprop=url|size&iiurlwidth=720&format=json&origin=*`;
-      const genRes = await fetch(genUrl);
+      if (netFailed) throw new TypeError('skipped after network failure'); const genRes = await fetch(genUrl);
       if (genRes.ok) {
         const genData = await genRes.json();
         const pages = Object.values(genData.query?.pages || {});
@@ -2436,11 +2437,11 @@ setTimeout(loadWebFonts,400);
         }
       }
     } catch (err) {
-      console.warn('[FandomCarousel] Generator query error:', err && err.name, err && err.message, '| host=' + info.host, '| online=' + navigator.onLine);
+      { if (err && err.name === 'TypeError') netFailed = true; } console.warn('[FandomCarousel] Generator query error:', err && err.name, err && err.message, '| host=' + info.host, '| online=' + navigator.onLine);
     }
 
     // Fallback: if generator query returned few items, query pageimages
-    if (items.length === 0) {
+    if (items.length === 0 && !netFailed) {
       try {
         const piUrl = `${apiBase}?action=query&titles=${encodeURIComponent(info.title)}&prop=pageimages|images&pithumbsize=720&imlimit=30&format=json&origin=*`;
         const piRes = await fetch(piUrl);
@@ -2850,6 +2851,15 @@ setTimeout(loadWebFonts,400);
   }
 
   // Scanner function to upgrade Fandom/Wikipedia links into carousels
+  const fdMem = new Map();
+  function fetchFandomImages(info) {
+    const key = 'fdm:' + info.host + (info.langPrefix || '') + '/' + info.title + '|' + (info.targetFile || '');
+    if (fdMem.has(key)) return fdMem.get(key);
+    const p = fetchFandomImagesRaw(info).then(items => { if (!items.length) fdMem.delete(key); return items; });
+    fdMem.set(key, p);
+    return p;
+  }
+
   async function scanAndUpgradeCarousels(rootEl) {
     if (!rootEl) return;
     const prefPicsOn = load('pf-wp') !== '0';
@@ -2858,13 +2868,18 @@ setTimeout(loadWebFonts,400);
     // Scan all <details> and paragraphs with fandom or wikipedia links
     const candidates = Array.from(rootEl.querySelectorAll('details, p')).filter(c =>
       !(c.tagName === 'DETAILS' && c.querySelector('p a[href*="fandom.com/"], p a[href*="wikia.com/"]')));
-    for (const container of candidates) {
-      if (container._carDone || container._wpDone) continue;
-      if (container.querySelector('.mdimg img[alt^="Reference card"]')) continue;
+    const nearView = (el) => new Promise(res => {
+      if (!('IntersectionObserver' in window)) return res();
+      const io = new IntersectionObserver(es => { if (es.some(e => e.isIntersecting)) { io.disconnect(); res(); } }, { rootMargin: '400px 0px' });
+      io.observe(el);
+    });
+    candidates.forEach(container => (async () => {
+      if (container._carDone || container._wpDone) return;
+      if (container.querySelector('.mdimg img[alt^="Reference card"]')) return;
 
       const links = Array.from(container.querySelectorAll('a[href]'));
       links.sort((a, b) => (/[?&]file=/.test(a.getAttribute('href') || '') ? 0 : 1) - (/[?&]file=/.test(b.getAttribute('href') || '') ? 0 : 1));
-      if (!links.length) continue;
+      if (!links.length) return;
 
       let foundInfo = null;
       let matchedLink = null;
@@ -2879,8 +2894,9 @@ setTimeout(loadWebFonts,400);
         }
       }
 
-      if (!foundInfo) continue;
+      if (!foundInfo) return;
       container._carDone = true;
+      await nearView(container);
 
       // Ask permission via netAsk if available
       if (typeof window.netAsk === 'function') {
@@ -2889,7 +2905,7 @@ setTimeout(loadWebFonts,400);
           `Load pictures and slides for "${foundInfo.title}" from ${foundInfo.host}.`,
           `https://${foundInfo.host}`
         );
-        if (!ok) continue;
+        if (!ok) return;
       }
 
       // Fetch items
@@ -2921,7 +2937,7 @@ setTimeout(loadWebFonts,400);
           container.parentNode.insertBefore(carousel, container.nextSibling);
         }
       }
-    }
+    })());
   }
 
   // Export to window
