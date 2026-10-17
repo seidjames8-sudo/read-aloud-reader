@@ -6076,6 +6076,7 @@ Use a Markdown link to a YouTube video. The reader shows a thumbnail first and l
 
           const img = document.createElement('img');
           img.alt = item.title || `Slide ${idx + 1}`;
+          if (item.width && item.height) { img.setAttribute('width', item.width); img.setAttribute('height', item.height); }
           img.setAttribute('loading', 'lazy');
           img.loading = 'lazy';
           img.decoding = 'async';
@@ -6156,6 +6157,7 @@ Use a Markdown link to a YouTube video. The reader shows a thumbnail first and l
 
           const thumbImg = document.createElement('img');
           thumbImg.alt = item.title || `Thumbnail ${idx + 1}`;
+          thumbImg.setAttribute('width', 54); thumbImg.setAttribute('height', 44);
           thumbImg.setAttribute('loading', 'lazy');
           thumbImg.loading = 'lazy';
           thumbImg.referrerPolicy = 'no-referrer';
