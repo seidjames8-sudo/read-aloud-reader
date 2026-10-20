@@ -1107,6 +1107,16 @@
       z-index: 2
     }
 
+    #doc .fandom-carousel {
+      max-width: var(--img-w, 100%)
+    }
+
+    @media (max-width:600px) {
+      #doc .fandom-carousel {
+        max-width: 100% !important
+      }
+    }
+
     #doc>* {
       content-visibility: auto;
       contain-intrinsic-size: auto 160px
@@ -4123,6 +4133,8 @@
       <option value="1.25">1.25×</option>
       <option value="1.5">1.5×</option>
       <option value="1.7">1.7×</option>
+      <option value="1.8">1.8×</option>
+      <option value="1.9">1.9×</option>
       <option value="2">2×</option>
     </select>
     <select id="voice" aria-label="Voice"></select>
