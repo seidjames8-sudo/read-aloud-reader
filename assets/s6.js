@@ -10,11 +10,19 @@
   bar.id='chapBar';bar.setAttribute('role','navigation');bar.setAttribute('aria-label','Chapter navigation');
   bar.innerHTML='<div id="chapBody"><button id="chPrev" type="button">‹ Previous</button><select id="chSel" aria-label="Choose chapter"></select><button id="chNext" type="button">Next ›</button><span id="chCount"></span></div>';
   $('#chapDrawerBody').appendChild(bar);
+  /* Remember which chapter was open, per book text, so a refresh returns to it */
+  const chapKey=()=>'chap:'+hashText(src||'');
+  function saveChap(i){try{localStorage.setItem(chapKey(),String(i))}catch(e){}}
+  function restoreChap(n){
+    let v=-1;try{v=parseInt(localStorage.getItem(chapKey())||'-1',10)}catch(e){}
+    return Number.isInteger(v)&&v>=0&&v<n?v:0;
+  }
   const sel=$('#chSel'),scrollEl=$('#scroll');
   function show(i){
     if(i<0||i>=list.length)return;
     if(playing)stop();
     chapIdx=i;window.chapIdx=i;
+    saveChap(i);
     renderRaw(list[i]);
     sel.innerHTML=list.map((c,k)=>'<option value="'+k+'">'+(k+1)+'. '+label(c).replace(/</g,'&lt;')+'</option>').join('');
     sel.value=String(i);
@@ -26,7 +34,7 @@
   }
   render=function(t){
     const full=t==null?String(load('text')||''):String(t);
-    if(full!==src){src=full;list=split(full);chapIdx=0}
+    if(full!==src){src=full;list=split(full);chapIdx=restoreChap(list.length)}
     show(Math.min(chapIdx,list.length-1));
   };
   $('#chPrev').onclick=()=>show(chapIdx-1);
