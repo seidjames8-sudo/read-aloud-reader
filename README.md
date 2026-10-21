@@ -20,7 +20,14 @@ Live site: `https://<your-username>.github.io/read-aloud-reader/`
 |---|---|
 | `index.html` | Page structure and links to the stylesheet and scripts |
 | `assets/reader.css` | All styles |
-| `assets/s0.js` – `assets/s7.js` | Reader scripts, loaded in order with `defer` |
+| `assets/core.js` | Speech engine, text rendering, word highlighting, bookmark/resume notice, waveform |
+| `assets/fullscreen.js` | Full screen with toolbar-hiding fallback |
+| `assets/pictures.js` | Real pictures for Wikipedia reference cards |
+| `assets/ux.js` | Editor preferences, YouTube player preferences, immersive chrome |
+| `assets/carousels.js` | Fandom/Wikipedia image fetcher and carousels |
+| `assets/highlights.js` | Reading progress bar and long-press highlights |
+| `assets/chapters.js` | Chapter split/navigation, auto-advance, and per-book chapter restore |
+| `assets/menus.js` | Chapter drawer, toolbar buttons, context menu, mobile More menu |
 | `.nojekyll` | Tells GitHub Pages to serve files as they are |
 
 ## Running it
@@ -52,7 +59,7 @@ Nothing is sent to a server owned by this project. Preferences, saved reading po
 
 ## Updating
 
-Replace the changed files (usually `index.html`, `assets/reader.css`, or one of the `assets/s*.js` files), commit, and push. Visitors only re-download the files that changed.
+Replace the changed files (usually `index.html`, `assets/reader.css`, or one of the other `assets/*.js` files), commit, and push. Visitors only re-download the files that changed.
 
 ## License
 
