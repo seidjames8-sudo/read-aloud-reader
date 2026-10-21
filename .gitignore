@@ -1,10 +1,10 @@
 # Brud Code workspace history
 .brud/
 
-# Sensitive / local-only files
+# Local-only files (not for GitHub)
 .freebuff/
-.CHAPTER_REFERENCE_BLOCK.md
-.TRAINING_DATA.md
+CHAPTER_REFERENCE_BLOCK.md
+TRAINING_DATA.md
 
 # Editor and OS files
 .vscode/
