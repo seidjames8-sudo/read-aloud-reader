@@ -115,7 +115,7 @@
     if(!text){return}
     /* A long press opens the text-actions menu (Read from here / Highlight / Copy) */
     if(window.showPressMenu){window.showPressMenu(x,y,R,text);return}
-    commitHighlight(R,text);
+    /* A long press only opens the text-actions menu (see ui.js); it never highlights directly */
   }
   function commitHighlight(R,text){
     if(text.length>400){toast('Select a shorter passage to highlight');return}

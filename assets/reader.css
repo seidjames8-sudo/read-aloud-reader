@@ -177,6 +177,10 @@ body.dimmed header,body.dimmed #stage,body.dimmed #bar{filter:brightness(var(--b
 #ctxMenu [role=menuitem]:disabled{opacity:.45;cursor:default}
 #ctxMenu.sheet{left:0!important;right:0;top:auto!important;bottom:0;max-width:none;min-width:0;border-radius:16px 16px 0 0;padding-bottom:calc(6px + env(safe-area-inset-bottom,0px))}
 body.hide-time #time{display:none!important}
+#selBar{position:fixed;z-index:75;display:flex;gap:4px;padding:4px;border-radius:12px;background:var(--panel);color:var(--ink);border:1px solid var(--line);box-shadow:0 8px 24px rgba(0,0,0,.25)}
+#selBar[hidden]{display:none}
+#selBar button{width:44px;height:44px;border:0;border-radius:8px;background:transparent;color:var(--ink);display:flex;align-items:center;justify-content:center;cursor:pointer}
+#selBar button:hover,#selBar button:focus-visible{background:color-mix(in srgb,var(--acc) 18%,transparent);outline:none}
 #bar{z-index:50}
 @media (max-width:600px){
 #chapDrawer{bottom:calc(var(--bar-h,0px) + 8px + env(safe-area-inset-bottom,0px));max-height:calc(100dvh - var(--bar-h,0px) - 96px);z-index:80}

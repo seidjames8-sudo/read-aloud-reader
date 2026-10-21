@@ -927,7 +927,7 @@ addEventListener('keydown',e=>{
     keys[rebind]=val;store('keys',JSON.stringify(keys));log('Shortcut set:',ACTS[rebind][0],'=',val||'none');rebind=null;drawKeys();return}
   const t=e.target,typing=t.tagName==='TEXTAREA'||t.tagName==='SELECT'||(t.tagName==='INPUT'&&/text|url|search|number/.test(t.type));
   if(typing)return;
-  if(t.closest&&t.closest('#chapBar,#chapDrawer,#ctxMenu,#moreBtn,#floatChap,#chapBtn'))return;
+  if(t.closest&&t.closest('#chapBar,#chapDrawer,#ctxMenu,#moreBtn,#floatChap,#chapBtn,#selBar'))return;
   const act=Object.keys(keys).find(k=>keys[k]&&keys[k]===c);
   if(!act)return;
   if(document.body.classList.contains('edit')&&!['edit','prefs','con'].includes(act))return;
