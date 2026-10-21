@@ -1182,6 +1182,7 @@ $('#src').addEventListener('paste',e=>{
   if(!t)return;e.preventDefault();e.target.value=t;store('text',t);log('Pasted text replaced the old text ('+t.length+' chars)');
 });
 validatePrefs();setBr(load('pf-br')||100);setSeg('imgsz',load('pf-imgsz')||'large',false);
+  migrateLegacyKeys();
 setSeg('cols',load('pf-cols')||1,false);setSeg('ff',load('pf-ff')||'"Noto Sans",system-ui,sans-serif',false);
 setSeg('th',load('pf-th')||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light'),false);
 {const savedLF=+load('pf-lf')||0;setSeg('lf',[0,1,3,5].includes(savedLF)?savedLF:0,false)}setSeg('lm',load('pf-lm')||'fade',false);applyColors();
@@ -1289,3 +1290,18 @@ setTimeout(loadWebFonts,400);
   document.querySelectorAll('aside details').forEach(d=>d.addEventListener('toggle',()=>requestAnimationFrame(()=>d.querySelectorAll('.seg').forEach(g=>place(g)))));
   if(document.fonts)document.fonts.ready.then(()=>document.querySelectorAll('aside .seg').forEach(place));
 })();
+/* Migrate legacy pf-* and c-* keys to reader.* scheme on first load */
+function migrateLegacyKeys() {
+  /* pf-timehide -> reader.showReadingTime */
+  const legacyTime = localStorage.getItem("pf-timehide");
+  const curTime = localStorage.getItem("reader.showReadingTime");
+  if(legacyTime && (!curTime || curTime === "")) {
+    localStorage.setItem("reader.showReadingTime", legacyTime === "1" ? "0" : "1");
+  }
+  /* pf-floatchap -> reader.showFloatingChapterShortcut */
+  const legacyFloat = localStorage.getItem("pf-floatchap");
+  const curFloat = localStorage.getItem("reader.showFloatingChapterShortcut");
+  if(legacyFloat && (!curFloat || curFloat === "")) {
+    localStorage.setItem("reader.showFloatingChapterShortcut", legacyFloat === "1" ? "0" : "1");
+  }
+}

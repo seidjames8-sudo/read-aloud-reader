@@ -119,7 +119,11 @@ button,select,input,.hd{touch-action:manipulation}
   #bar #voice{flex:1 1 100%;max-width:none}
   #wave{display:none!important}
   #scroll{padding:20px 14px 36px}
-  #resume{bottom:calc(150px + env(safe-area-inset-bottom,0px))}
+  #resume{left:12px;right:12px;transform:none;bottom:calc(var(--bar-h,0px) + env(safe-area-inset-bottom,0px) + 10px);max-width:none;gap:10px;padding:10px 12px;font-size:14px;border-radius:14px}
+  #resume button{padding:7px 12px}
+  #rsMsg{flex:1;min-width:0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  /* Keep the floating Chapters button clear of the docked resume card while it is visible */
+  body.resume-open #floatChap{bottom:calc(var(--bar-h,0px) + 78px + env(safe-area-inset-bottom,0px))}
 }
 button,select{border-radius:10px;transition:background .15s,border-color .15s}
 button:hover{background:color-mix(in srgb,var(--acc) 10%,var(--panel))}
@@ -202,6 +206,49 @@ mark.hl{background:color-mix(in srgb,#ffd54a 45%,transparent);color:inherit;bord
 :root{--img-w:100%}
 #doc .mdimg img,#doc figure.md img{max-width:var(--img-w);height:auto}
 @media (max-width:600px){#doc .mdimg img,#doc figure.md img{max-width:100%!important}}
+/* ===== Reading aids (settings visibility groups over existing UI) ===== */
+#chapHead{font:600 12.5px/1.3 "Noto Sans",system-ui,sans-serif;color:var(--mute);text-align:center;padding:4px 16px 6px;background:var(--panel);border-bottom:1px solid var(--line)}
+#chapHead[hidden]{display:none}
+#chapHeadEl{display:inline-block;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;vertical-align:bottom}
+#chapTitleLine{display:flex;justify-content:center;padding:0 12px 6px;color:var(--mute);font-size:12px}
+#chapTitleLine[hidden]{display:none}
+#chapTitleEl{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#chapBody.no-count #chCount{display:none}
+body.hide-wave #wave{display:none!important}
+body.hide-float #floatChap{display:none!important}
+/* ===== Modern settings controls: switches, labelled rows, section headings ===== */
+.swset{display:flex;flex-direction:column;gap:2px}
+.sw-row{display:grid;grid-template-columns:1fr auto;align-items:center;gap:4px 12px;padding:10px;border:1px solid var(--line);border-radius:12px;background:color-mix(in srgb,var(--bg) 45%,var(--panel));cursor:pointer;margin:0}
+.sw-row:hover{border-color:color-mix(in srgb,var(--acc) 45%,var(--line))}
+.sw-row:active{background:color-mix(in srgb,var(--acc) 8%,var(--panel))}
+.sw-row:has(input:focus-visible){outline:2px solid var(--acc);outline-offset:2px}
+.sw-txt{display:flex;flex-direction:column;gap:2px;min-width:0}
+.sw-lb{font-size:14px;font-weight:600;color:var(--ink)}
+.sw-desc{font-size:12.5px;line-height:1.45;color:var(--mute)}
+.sw-ctl{display:flex;flex-direction:column;align-items:center;gap:2px;flex:0 0 auto}
+/* The switch itself: a real checkbox, switch visuals, keyboard-visible */
+.sw{position:absolute;opacity:0;width:52px;height:30px;margin:0;cursor:pointer}
+.sw-chip{position:relative;display:inline-block;width:52px;height:30px;border-radius:999px;background:color-mix(in srgb,var(--mute) 30%,var(--line));transition:background .18s;flex:0 0 auto}
+.sw-chip::after{content:'';position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.3);transition:transform .18s}
+.sw:checked+.sw-chip{background:var(--acc)}
+.sw:checked+.sw-chip::after{transform:translateX(22px)}
+.sw:focus-visible+.sw-chip{outline:2px solid var(--acc);outline-offset:2px}
+.sw-chip::before{content:'';position:absolute;inset:0;border-radius:inherit;background:transparent}
+@media(prefers-reduced-motion:reduce){.sw-chip,.sw-chip::after{transition:none}}
+.sw-state{font-size:11px;font-weight:600;color:var(--mute);letter-spacing:.02em;min-width:24px;text-align:center}
+.sw:checked~.sw-chip+.sw-state,.sw-row input:checked ~ .sw-ctl .sw-state{color:var(--acc)}
+.sw-ind{font-size:11px;font-weight:700;color:var(--mute);text-transform:uppercase;letter-spacing:.04em}
+.sw-ind.on{color:var(--acc)}
+/* Settings section headings on generic groups */
+.set-h{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--mute);margin:4px 0 2px}
+/* Danger / destructive actions */
+button.danger{background:#b42318!important;color:#fff!important;border-color:#b42318!important}
+button.danger:hover{filter:brightness(1.08)}
+/* pResumeNow: writes through existing helpers, so it reuses default .pf-footer-like primary flow */
+aside .pf-actions{display:flex;gap:8px;flex-wrap:wrap}
+aside .pf-actions button{flex:1 1 auto}
+
+/* ===== Existing segment presets (unchanged behavior) =====*/
 .pf-footer{position:sticky;bottom:-16px;margin-top:auto;padding:10px 0 4px;background:var(--panel);border-top:1px solid var(--line);display:flex;flex-direction:column;gap:8px}
 .pf-row{display:flex;gap:8px;flex-wrap:wrap}.pf-row button{flex:1 1 120px}
 .pf-confirm{display:flex;flex-direction:column;gap:8px;padding:10px;border:1px solid var(--line);border-radius:10px;font-size:14px}
