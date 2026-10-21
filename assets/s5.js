@@ -113,6 +113,11 @@
     const text=R.toString().trim();
     sel.removeAllRanges();
     if(!text){return}
+    /* A long press opens the text-actions menu (Read from here / Highlight / Copy) */
+    if(window.showPressMenu){window.showPressMenu(x,y,R,text);return}
+    commitHighlight(R,text);
+  }
+  function commitHighlight(R,text){
     if(text.length>400){toast('Select a shorter passage to highlight');return}
     if(R.startContainer.parentElement?.closest('mark.hl')){toast('Already highlighted');return}
     const {arr,full}=textNodes();
@@ -125,6 +130,8 @@
     markRange(R,id);justMarked=performance.now();
     toast('Highlighted');log('Highlight added:',text.length,'chars');
   }
+  window.commitHighlight=commitHighlight;
+  window.caretNodeAt=(x,y)=>{const c=caretAt(x,y);return c&&doc.contains(c.node)?c.node:null};
   /* Tap an existing highlight to remove it (ignored right after creating one) */
   doc.addEventListener('click',e=>{
     const m=e.target.closest&&e.target.closest('mark.hl');
