@@ -7,13 +7,25 @@
   let lastTrigger=null,savedSel='';
   menu.tabIndex=-1;
 
-  /* Reading-time visibility: shown by default, choice remembered */
+  /* Reading-time visibility: one source of truth (reader.showReadingTime, set in Reading prefs).
+     Legacy pf-timehide is migrated once; applyTime remains for the context-menu toggle. */
+  function timePrefOn(){
+    let v=null;try{v=localStorage.getItem('reader.showReadingTime')}catch(e){}
+    if(v!=null&&v!=='')return v==='1';
+    let legacy=null;try{legacy=localStorage.getItem('pf-timehide')}catch(e){}
+    return legacy!=='1';
+  }
   function applyTime(hidden){
     document.body.classList.toggle('hide-time',hidden);
-    try{localStorage.setItem('pf-timehide',hidden?'1':'0')}catch(e){}
+    try{localStorage.setItem('reader.showReadingTime',hidden?'0':'1')}catch(e){}
+    if(typeof window.applyReaderSwitches==='function')window.applyReaderSwitches();
   }
-  let savedTime=null;try{savedTime=localStorage.getItem('pf-timehide')}catch(e){}
-  applyTime(savedTime==='1');
+  try{const legacy=localStorage.getItem('pf-timehide');if(legacy!==null){
+    let cur=null;try{cur=localStorage.getItem('reader.showReadingTime')}catch(e){}
+    if(cur==null||cur==='')try{localStorage.setItem('reader.showReadingTime',legacy==='1'?'0':'1')}catch(e){}
+    localStorage.removeItem('pf-timehide')
+  }}catch(e){}
+  document.body.classList.toggle('hide-time',!timePrefOn());
 
   /* Keep the floating button clear of the playback bar */
   if(bar&&window.ResizeObserver){

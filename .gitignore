@@ -2,8 +2,8 @@
 .brud/
 
 # Private notes and reference drafts
-TRAINING_DATA.md
-CHAPTER_REFERENCE_BLOCK.md
+.TRAINING_DATA.md
+.CHAPTER_REFERENCE_BLOCK.md
 
 # Editor and OS files
 .vscode/
