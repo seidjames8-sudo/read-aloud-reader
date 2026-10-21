@@ -1,13 +1,13 @@
 # Brud Code workspace history
 .brud/
 
-# Private notes and reference drafts
-.TRAINING_DATA.md
+# Sensitive / local-only files
+.freebuff/
 .CHAPTER_REFERENCE_BLOCK.md
+.TRAINING_DATA.md
 
 # Editor and OS files
 .vscode/
-.idea/
 .DS_Store
 Thumbs.db
 *.log
