@@ -38,9 +38,9 @@
     return v
   }
   const sel=$('#chSel'),scrollEl=$('#scroll');
-  function show(i){
+  function show(i,opts={}){
     if(i<0||i>=list.length)return;
-    if(playing)stop();
+    if(playing&&!opts.manual)stop();
     chapIdx=i;window.chapIdx=i;window.chapCount=list.length;
     saveChap(i);
     renderRaw(list[i]);
@@ -65,8 +65,11 @@
   };
   $('#chPrev').onclick=()=>show(chapIdx-1);
   $('#chNext').onclick=()=>show(chapIdx+1);
+  $('#chapPrev').onclick=()=>show(chapIdx-1);
+  $('#chapNext').onclick=()=>show(chapIdx+1);
   sel.onchange=()=>show(+sel.value);
-  window.onChapterDone=()=>{if(chapIdx<list.length-1){show(chapIdx+1);speak(0);return true}return false};
+  let autoAdvanceEnabled=true;
+  window.onChapterDone=()=>{if(!autoAdvanceEnabled)return false;if(chapIdx<list.length-1){show(chapIdx+1);speak(0);return true}return false};
   render();
   /* The first, chapter-restoring render is complete. The resume banner in core.js only
      speaks up after this flag is set, so it fires after the chapter was restored and

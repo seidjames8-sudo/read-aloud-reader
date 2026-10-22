@@ -717,6 +717,27 @@ secretTitle.addEventListener('click',()=>{
 /* Also provide a keyboard escape hatch for desktop: Ctrl+Alt+Shift+R. */
 document.addEventListener('keydown',e=>{
   if(e.ctrlKey&&e.altKey&&e.shiftKey&&e.key.toLowerCase()==='r'){e.preventDefault();openResetGate()}
+  // A: Previous Chapter, D: Next Chapter
+  if(e.key==='a'||e.key==='A'){
+    if(!(e.target instanceof HTMLInputElement)&&!(e.target instanceof HTMLTextAreaElement)&&!e.target.isContentEditable){
+      e.preventDefault();
+      const chapSel=document.getElementById('chSel');
+      if(chapSel&&chapSel.selectedIndex>0){
+        chapSel.selectedIndex--;
+        chapSel.onchange?.();
+      }
+    }
+  }
+  if(e.key==='d'||e.key==='D'){
+    if(!(e.target instanceof HTMLInputElement)&&!(e.target instanceof HTMLTextAreaElement)&&!e.target.isContentEditable){
+      e.preventDefault();
+      const chapSel=document.getElementById('chSel');
+      if(chapSel&&chapSel.selectedIndex<chapSel.options.length-1){
+        chapSel.selectedIndex++;
+        chapSel.onchange?.();
+      }
+    }
+  }
 });
 
 /* prefs */
