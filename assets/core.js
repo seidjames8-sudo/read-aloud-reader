@@ -502,6 +502,7 @@ function savePos(){
 let rsT;
 function showResume(m){$('#rsMsg').textContent=m;$('#resume').style.display='flex';clearTimeout(rsT);rsT=setTimeout(()=>{$('#resume').style.display='none'},12000)}
 function restorePos(){
+  if(load('reader.restorePosition')==='0')return;
   const p=pos[curHash];if(!p||!(p.i>0)||p.i>=words.length-2)return;
   mark(p.i);if(!focusN&&$('#as').checked)requestWordScroll(words[p.i].el);
   const pct=Math.round(p.i/words.length*100);
@@ -1111,8 +1112,10 @@ document.querySelectorAll('.seg[data-k="ff"] button').forEach(b=>b.addEventListe
 applyReadingTypography();
 
 $('#lfKeep').checked=load('pf-lfKeep')==='1';$('#lfKeep').onchange=e=>{store('pf-lfKeep',e.target.checked?'1':'0');updateLF()};
+$('#hw').checked=load('pf-hw')!=='0';$('#hw').onchange=e=>store('pf-hw',e.target.checked?'1':'0');
+$('#as').checked=load('pf-as')!=='0';$('#as').onchange=e=>store('pf-as',e.target.checked?'1':'0');
 $('#doc').addEventListener('toggle',imgLayout,true);
-$('#pClose').onclick=()=>$('#prefs').click();
+$('#pClose').onclick=()=>setPanel(false);
 const PF_RULES={'pf-imgsz':v=>['small','medium','large'].includes(v),'pf-th':v=>['light','sepia','dark'].includes(v),'pf-cols':v=>['1','2','3'].includes(v),'pf-br':v=>isFinite(v)&&+v>=30&&+v<=120,'pf-vol':v=>isFinite(v)&&+v>=0&&+v<=100};
 function validatePrefs(){let n=0;Object.keys(PF_RULES).forEach(k=>{const v=load(k);if(v!==null&&!PF_RULES[k](v)){try{localStorage.removeItem(k)}catch(_){}n++;warn('Removed invalid saved setting:',k)}});return n}
 const pStatus=m=>{const s=$('#pStatus');if(s)s.textContent=m;log('Settings:',m)};
@@ -1120,8 +1123,63 @@ $('#pSave').onclick=()=>{const n=validatePrefs();const m=n?`Saved. ${n} invalid 
 $('#pPreview').onclick=()=>{const box=$('#typePreview');if(!box)return;box.querySelectorAll('.pv-fig').forEach(x=>x.remove());const f=document.createElement('figure');f.className='pv-fig';f.style.cssText='margin:8px 0;text-align:center';const img=document.createElement('img');img.alt='Sample reference picture';img.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="400" height="240"><rect width="400" height="240" rx="12" fill="#6cb2f5"/><text x="200" y="134" font-size="36" text-anchor="middle" fill="#fff">Sample</text></svg>');img.style.cssText='display:block;margin:0 auto;border-radius:8px;max-width:var(--img-w)';f.appendChild(img);box.appendChild(f);pStatus('Preview shown at '+(load('pf-imgsz')||'large')+' picture size.')};
 $('#pReset').onclick=()=>{$('#pConfirm').hidden=false;$('#pConfirmNo').focus({preventScroll:true})};
 $('#pConfirmNo').onclick=()=>{$('#pConfirm').hidden=true;$('#pReset').focus({preventScroll:true})};
-$('#pConfirmYes').onclick=()=>{Object.keys(localStorage).filter(k=>/^(pf-|c-)/.test(k)).forEach(k=>localStorage.removeItem(k));log('Settings reset to defaults; chapter text kept');toast('Settings reset to defaults. Reloading...');setTimeout(()=>location.reload(),500)};
+$('#pConfirmYes').onclick=()=>{Object.keys(localStorage).filter(k=>/^(pf-|c-|reader\.)/.test(k)).forEach(k=>localStorage.removeItem(k));log('Settings reset to defaults; chapter text kept');toast('Settings reset to defaults. Reloading...');setTimeout(()=>location.reload(),500)};
+$('#pResumeNow').onclick=()=>{
+  const p=pos[curHash];
+  if(!p||p.i<0||p.i>=words.length){toast('No saved position for this text yet.');return}
+  mark(p.i);if(!focusN&&$('#as').checked)requestWordScroll(words[p.i].el);
+  setPanel(false);toast('Jumped to your saved position.');
+};
+$('#pClearProg').onclick=()=>{$('#pClearConfirm').hidden=false;$('#pClearNo').focus({preventScroll:true})};
+$('#pClearNo').onclick=()=>{$('#pClearConfirm').hidden=true;$('#pClearProg').focus({preventScroll:true})};
+$('#pClearYes').onclick=()=>{
+  /* Stop first and drop the position before clearing, otherwise stop() re-saves it. */
+  clearTimeout(saveT);saveT=0;mark(-1);stop();$('#scroll').scrollTo({top:0});
+  try{Object.keys(localStorage).filter(k=>k==='pos'||k.startsWith('chap:')).forEach(k=>localStorage.removeItem(k))}catch(e){}
+  if(typeof pos==='object'&&pos)Object.keys(pos).forEach(k=>delete pos[k]);
+  try{sessionStorage.removeItem('pos')}catch(e){}
+  $('#pClearConfirm').hidden=true;
+  pStatus('Saved reading positions cleared.');toast('Saved reading positions cleared.');
+};
 if($('#advLog'))$('#advLog').onclick=()=>$('#conBtn')?.click();
+/* ---------- preference switches: persist, apply, and keep the On/Off label in sync ---------- */
+(function(){
+  const KEY={
+    restore:'reader.restorePosition',
+    'reading-time':'reader.showReadingTime',
+    'chapter-progress':'reader.showChapterProgress',
+    wave:'reader.showWaveform',
+    'floating-chapter-shortcut':'reader.showFloatingChapterShortcut',
+    'chapter-title':'reader.showChapterTitles'
+  };
+  const isOn=key=>{const v=load(key);return v==null||v===''||v==='1'};
+  const label=(input,checked)=>{const row=input.closest('.sw-row'),s=row&&row.querySelector('.sw-state');if(s)s.textContent=checked?'On':'Off'};
+  function effect(name,checked){
+    if(name==='reading-time')document.body.classList.toggle('hide-time',!checked);
+    else if(name==='wave')document.body.classList.toggle('hide-wave',!checked);
+    else if(name==='floating-chapter-shortcut')document.body.classList.toggle('hide-float',!checked);
+    else if(name==='chapter-title'||name==='chapter-progress'){if(typeof window.applyBarPrefs==='function')window.applyBarPrefs()}
+  }
+  function apply(){
+    document.querySelectorAll('#panel input.sw').forEach(input=>{
+      const key=KEY[input.dataset.sw];
+      if(key){const on=isOn(key);input.checked=on;effect(input.dataset.sw,on)}
+      label(input,input.checked);
+    });
+  }
+  document.querySelectorAll('#panel input.sw').forEach(input=>{
+    input.addEventListener('change',()=>{
+      const name=input.dataset.sw,key=KEY[name];
+      label(input,input.checked);
+      if(!key)return;
+      store(key,input.checked?'1':'0');
+      effect(name,input.checked);
+    });
+  });
+  window.applyReaderSwitches=apply;
+  apply();
+  addEventListener('load',apply);
+})();
 /* init */
 const startText=load('text')||SAMPLE;$('#src').value=startText;render(startText);
 let hist=[];try{hist=JSON.parse(load('hist')||'[]')}catch(e){}
@@ -1265,18 +1323,17 @@ setTimeout(loadWebFonts,400);
 /* ---------- Edge-style preference pages: Text | Layout | Look | Focus | Voice | More ---------- */
 (function(){
   const panel=$('#panel'),head=panel.querySelector('.ph');
-  const MAP={'Text':'text','Custom fonts':'text','Columns & layout':'layout','Theme & colors':'look','Line focus':'focus','Voice & audio':'voice','Network access':'more','Keyboard shortcuts':'more'};
+  const MAP={'Text':'text','Custom fonts':'text','Columns & layout':'layout','Display':'layout','Theme & colors':'look','Line focus':'focus','Voice & audio':'voice','Network access':'more','Keyboard shortcuts':'more'};
   const TABS=[['text','Text'],['layout','Layout'],['look','Look'],['focus','Focus'],['voice','Voice'],['more','More']];
   const ds=[...panel.querySelectorAll(':scope>details')],count={};
-  ds.forEach(d=>{const id=MAP[d.querySelector('summary').textContent.trim()]||'more';d.dataset.pg=id;count[id]=(count[id]||0)+1;d.classList.add('pgd');d.open=!d.classList.contains('adv')});
+  ds.forEach(d=>{const id=MAP[d.querySelector('summary').textContent.trim()]||'more';d.dataset.pg=id;count[id]=(count[id]||0)+1;d.classList.add('pgd');d.open=!d.classList.contains('adv')&&!d.classList.contains('dangerzone')});
   ds.forEach(d=>{if(count[d.dataset.pg]>1)d.classList.add('hasT')});
-  const rst=$('#pReset');rst.dataset.pg='more';rst.classList.add('pgx');
   const bar=document.createElement('div');bar.className='seg ptabs';bar.setAttribute('role','tablist');bar.setAttribute('aria-label','Preference pages');
   TABS.forEach(([id,label])=>{const b=document.createElement('button');b.type='button';b.dataset.tab=id;b.textContent=label;b.setAttribute('role','tab');bar.appendChild(b)});
   const wrap=document.createElement('div');wrap.className='phead';head.parentNode.insertBefore(wrap,head);wrap.append(head,bar);
-  const hq={text:$('#prefs'),focus:$('#pgRead'),voice:$('#pgVoice')};
-  function pos(){document.documentElement.style.setProperty('--hdr',Math.round(document.querySelector('header').getBoundingClientRect().bottom+8)+'px')}
-  function syncHdr(){const o=panel.classList.contains('open'),t=panel.dataset.tab;Object.keys(hq).forEach(k=>hq[k].setAttribute('aria-expanded',o&&t===k?'true':'false'));if(o)pos()}
+  /* Header height (not its animated position) anchors the desktop popover, so it opens below the bar even while the bar is sliding back in. */
+  function pos(){const h=document.querySelector('header');document.documentElement.style.setProperty('--hdr',Math.round((h?h.offsetHeight:0)+8)+'px')}
+  function syncHdr(){if(panel.classList.contains('open'))pos()}
   function showTab(id,save){
     panel.dataset.tab=id;
     bar.querySelectorAll('button').forEach(b=>{const on=b.dataset.tab===id;b.setAttribute('aria-pressed',on?'true':'false');b.setAttribute('aria-selected',on?'true':'false');b.tabIndex=on?0:-1});
@@ -1289,17 +1346,10 @@ setTimeout(loadWebFonts,400);
     const ids=TABS.map(t=>t[0]),i=ids.indexOf(panel.dataset.tab),n=ids[(i+(e.key==='ArrowRight'?1:ids.length-1))%ids.length];
     e.preventDefault();showTab(n,true);bar.querySelector('[data-tab="'+n+'"]').focus();
   });
-  /* Edge-style header buttons: each opens its own page; clicking another switches pages instead of closing */
-  Object.keys(hq).forEach(id=>hq[id].addEventListener('click',e=>{
-    const open=panel.classList.contains('open');
-    if(open&&panel.dataset.tab!==id){e.stopImmediatePropagation();showTab(id,false);return}
-    if(!open)showTab(id,false);
-  },true));
-  $('#pgRead').onclick=$('#pgVoice').onclick=()=>setPanel(!panel.classList.contains('open'));
   /* click outside the popover closes it on desktop (phones use the backdrop) */
   document.addEventListener('pointerdown',e=>{
     if(!panel.classList.contains('open')||isSheet()||document.body.classList.contains('force-desktop'))return;
-    if(panel.contains(e.target)||e.target.closest('#prefs,#pgRead,#pgVoice,#netGate,#toast'))return;
+    if(panel.contains(e.target)||e.target.closest('#prefs,#netGate,#toast'))return;
     setPanel(false);
   },true);
   new MutationObserver(syncHdr).observe(panel,{attributes:true,attributeFilter:['class']});

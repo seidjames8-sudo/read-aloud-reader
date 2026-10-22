@@ -560,7 +560,7 @@ body{height:100vh;height:100dvh;min-height:0;}
 
 
 /* Android: show an always-visible live sample because the preference sheet covers the document. */
-#typePreview{display:block!important;position:relative;z-index:1;margin:0 0 16px;padding:12px;border:1px solid var(--accent,#68aef2);border-radius:10px;background:var(--card,#111820);color:var(--ink,#f2f5fa);font-size:calc(var(--fs,24px)*var(--fz,1))!important;line-height:var(--lh,1.7)!important;letter-spacing:var(--ls,0)!important;word-spacing:var(--ws,0)!important;font-family:var(--ff,"Noto Sans",system-ui,sans-serif)!important;overflow-wrap:anywhere}
+#typePreview{display:block!important;position:relative;z-index:1;margin:0 0 12px;padding:12px;border:1px solid var(--line);border-radius:10px;background:var(--panel);color:var(--ink);font-size:calc(var(--fs,24px)*var(--fz,1))!important;line-height:var(--lh,1.7)!important;letter-spacing:var(--ls,0)!important;word-spacing:var(--ws,0)!important;font-family:var(--ff,"Noto Sans",system-ui,sans-serif)!important;overflow-wrap:anywhere;max-height:min(38vh,300px);overflow:auto}
 #typePreview strong{display:block;font:600 12px/1.4 system-ui,sans-serif!important;letter-spacing:normal!important;word-spacing:normal!important;text-transform:uppercase;opacity:.75;margin-bottom:8px}
 #typePreview p{font:inherit!important;line-height:inherit!important;letter-spacing:inherit!important;word-spacing:inherit!important;margin:0 0 var(--pm,1em)!important}
 #typePreview p:last-child{margin-bottom:0!important}
@@ -583,8 +583,14 @@ aside details.pgd>.dc{padding:0}
 aside details.pgd>summary{display:none}
 aside details.pgd.hasT>summary{display:block;list-style:none;cursor:default;pointer-events:none;min-height:0;padding:14px 0 8px;font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--mute)}
 aside details.pgd.hasT>summary::after{content:''}
-aside .pgx{display:none}
-aside .pgx.on{display:block}
+/* Footer actions stay compact; destructive settings live in the Reset & saved data section. */
+.pv-actions{margin:0 0 12px}
+#pStatus{margin:0}
+#pStatus:empty{display:none}
+aside details.dangerzone>summary{color:#b42318;font-weight:700}
+:root[data-t="dark"] aside details.dangerzone>summary{color:#ff9b8f}
+aside details.dangerzone>.dc{gap:10px}
+aside details.dangerzone button{min-height:44px}
 @media(min-width:761px){
   body:not(.force-desktop) #panel.open{position:fixed;top:var(--hdr,64px);right:16px;left:auto;bottom:auto;width:min(380px,calc(100vw - 32px));height:auto;max-height:calc(100dvh - var(--hdr,64px) - 24px);flex:none;padding:16px;border:1px solid var(--line);border-radius:16px;box-shadow:0 18px 50px rgba(0,0,0,.32);z-index:901}
 }

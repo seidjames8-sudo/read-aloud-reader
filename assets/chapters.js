@@ -28,6 +28,9 @@
   const chapKey=()=>'chap:'+hashText(src||'');
   function saveChap(i){try{localStorage.setItem(chapKey(),String(i))}catch(e){}}
   function restoreChap(n){
+    /* Respect the “Restore last reading position” preference */
+    let restoreOn=true;try{restoreOn=localStorage.getItem('reader.restorePosition')!=='0'}catch(e){}
+    if(!restoreOn)return 0;
     /* Fallback: if the saved number is missing or out of range, start at Chapter 1 */
     let raw=null,v=-1;try{raw=localStorage.getItem(chapKey())}catch(e){}
     if(raw!=null)v=parseInt(raw,10);
@@ -59,7 +62,7 @@
     log('Chapter',i+1,'of',list.length);
   }
   render=function(t){
-    const full=t==null?String(load('text')||''):String(t);
+    const full=t==null?String(load('text')||(typeof SAMPLE!=='undefined'?SAMPLE:'')):String(t);
     if(full!==src){src=full;list=split(full);chapIdx=restoreChap(list.length)}
     show(Math.min(chapIdx,list.length-1));
   };
