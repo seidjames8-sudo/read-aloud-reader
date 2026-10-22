@@ -66,14 +66,21 @@
     else fallback();
   }
 
-  /* Only actions the toolbar does not already provide (no duplicates of Chapters, Shortcuts, Preferences, Edit, Full screen) */
+  /* Reader actions; on phones the header is compact, so its secondary tools are added here. */
   function actions(){
     const timeHidden=document.body.classList.contains('hide-time');
-    return [
+    /* Phones keep only Edit text, Chapters and More in the header, so the other tools live here. */
+    const tools=isSheet()?[
+      {label:'Preferences',run:()=>$('#prefs').click()},
+      {label:document.body.classList.contains('force-desktop')?'Mobile layout':'Desktop layout',run:()=>$('#viewMode').click()},
+      {label:'Full screen',run:()=>$('#fullscreenBtn').click()},
+      {label:'Console log',run:()=>$('#conBtn').click()}
+    ]:[];
+    return tools.concat([
       {label:timeHidden?'Show reading time':'Hide reading time',run:()=>applyTime(!document.body.classList.contains('hide-time'))},
       {label:drawer.hidden?'Show chapter panel':'Hide chapter panel',run:()=>setDrawer(drawer.hidden)},
       {label:'Copy selected text',disabled:!savedSel,run:()=>copyText(savedSel)}
-    ];
+    ]);
   }
 
   function place(x,y){

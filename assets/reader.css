@@ -804,6 +804,22 @@ body.chrome-hidden #bar:focus-within{
 .car-lightbox-close{position:absolute;top:16px;right:16px;width:44px;height:44px;border-radius:50%;border:0;background:rgba(255,255,255,.15);color:#fff;font-size:20px;cursor:pointer}
 @media (max-width:600px){.car-stage{min-height:190px;max-height:300px;aspect-ratio:4/3}.car-nav-btn{width:38px;height:38px;font-size:20px}.car-thumbs-strip{gap:4px}.car-thumb-item{flex:0 0 46px;height:38px}}
 
+/* ===== Mobile header: one compact row; secondary tools move into the More sheet ===== */
+@media(max-width:600px){
+  header{flex-wrap:wrap;gap:6px;padding:7px 8px;align-items:center}
+  header h1{flex:1 1 auto;min-width:0;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  /* Console, Desktop layout, Preferences and Full screen are in the More menu on phones.
+     Keyboard shortcuts remain in Preferences > More, where they belong on touch screens. */
+  #conBtn,#shortcutHelp,#viewMode,#prefs,#fullscreenBtn{display:none!important}
+  header #edit,header #chapBtn,header #moreBtn{flex:0 0 auto;min-height:44px}
+  #time{order:10;flex:1 0 100%;margin-top:-2px;font-size:11px;line-height:1.3}
+  #ctxMenu.sheet{max-height:calc(100dvh - var(--bar-h,0px) - 20px);overflow-y:auto}
+  /* Chapter stepping lives in the Chapters drawer on phones, so the player fits in two tidy rows. */
+  #bar #chapPrev,#bar #chapNext{display:none!important}
+  #bar{padding:7px 8px calc(7px + env(safe-area-inset-bottom,0px))!important;gap:6px}
+  #bar #rate{flex:0 0 68px;min-width:68px}
+}
+
 /* ===== Mobile editor: keep every control (Paste, Start reading) reachable on short phones ===== */
 @media(max-width:760px){
   /* The editor itself may scroll when the on-screen keyboard or a short screen leaves too little room. */
