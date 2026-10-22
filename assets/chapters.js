@@ -4,7 +4,7 @@
   const renderRaw=render;
   let src=null,list=[''],chapIdx=0;
   window.chapIdx=0;window.chapCount=0;
-  const split=t=>{const p=String(t).split(/\n(?=(?:#+\s+Chapter|Chapter\s+\d+|CHAPTER\s+\d+))/i).filter(x=>x.trim());return p.length?p:[String(t)]};
+  const split=t=>{const p=String(t).split(/\r?\n(?=\s*(?:#+\s*Chapter|Chapter\s+\d+|CHAPTER\s+\d+))/i).filter(x=>x.trim());return p.length?p:[String(t)]};
   const label=c=>{const m=c.match(/^#\s+(.+)$/m);return ((m&&m[1])||'Chapter').replace(/\s+/g,' ').trim().slice(0,90)};
   const bar=document.createElement('div');
   bar.id='chapBar';bar.setAttribute('role','navigation');bar.setAttribute('aria-label','Chapter navigation');
