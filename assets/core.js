@@ -869,6 +869,23 @@ async function openFile(file){
 $('#fOpen').onclick=()=>$('#openF').click();
 $('#openF').onchange=e=>{openFile(e.target.files[0]);e.target.value=''};
 $('#tCopy').onclick=()=>{const t=$('#src').value;(navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(()=>toast('Text copied'),()=>{$('#src').select();toast('Press Ctrl+C to copy')})};
+$('#tPaste').onclick=async()=>{
+  const src=$('#src');
+  const apply=t=>{
+    if(!t)return;
+    if($('#ar').checked){src.value=t;store('text',t);log('Pasted text replaced the old text ('+t.length+' chars)')}
+    else{const a=src.selectionStart==null?src.value.length:src.selectionStart,b=src.selectionEnd==null?a:src.selectionEnd;src.setRangeText(t,a,b,'end');log('Pasted text at the cursor ('+t.length+' chars)')}
+    src.focus({preventScroll:true});toast('Pasted from clipboard');
+  };
+  try{
+    if(!(navigator.clipboard&&navigator.clipboard.readText))throw new Error('clipboard unavailable');
+    const t=await navigator.clipboard.readText();
+    if(t)apply(t);else toast('Clipboard is empty');
+  }catch(_){
+    src.focus({preventScroll:true});
+    toast('Clipboard is blocked. Press and hold in the text box, then tap Paste.');
+  }
+};
 addEventListener('dragover',e=>{if(e.dataTransfer&&[...e.dataTransfer.types].includes('Files'))e.preventDefault()});
 addEventListener('drop',e=>{const f=e.dataTransfer&&e.dataTransfer.files[0];if(!f)return;e.preventDefault();if(!document.body.classList.contains('edit'))$('#edit').click();if(f.type.startsWith('image/'))addImages(e.dataTransfer.files);else openFile(f)});
 

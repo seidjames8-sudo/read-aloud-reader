@@ -13,10 +13,13 @@
   document.getElementById('editorFontReset')?.addEventListener('click',()=>{size=15;applySize();src?.focus({preventScroll:true})});applySize();
   let hideTimer=0,manual=false;
   const interactive=()=>document.body.classList.contains('edit')||document.querySelector('#panel.open, #con.open, #histPanel:not([hidden])')||document.activeElement?.matches('input,textarea,select,[contenteditable="true"]');
-  const reveal=()=>{document.body.classList.remove('chrome-hidden');clearTimeout(hideTimer);if(!manual&&!interactive())hideTimer=setTimeout(()=>{if(!interactive())document.body.classList.add('chrome-hidden')},2600)};
-  const hide=()=>{if(!manual&&!interactive())document.body.classList.add('chrome-hidden')};
+  /* Touch screens have no hover pointer, so the auto-hiding toolbar can trap buttons like Edit text.
+     Keep the chrome visible there and let any tap bring it back. */
+  const touchOnly=matchMedia('(pointer:coarse)').matches||matchMedia('(hover: none)').matches;
+  const reveal=()=>{document.body.classList.remove('chrome-hidden');clearTimeout(hideTimer);if(!manual&&!touchOnly&&!interactive())hideTimer=setTimeout(()=>{if(!interactive())document.body.classList.add('chrome-hidden')},2600)};
+  const hide=()=>{if(!manual&&!touchOnly&&!interactive())document.body.classList.add('chrome-hidden')};
   document.addEventListener('pointermove',e=>{if(e.clientY<70||e.clientY>innerHeight-100)reveal();else if(document.body.classList.contains('chrome-hidden'))return;else {clearTimeout(hideTimer);hideTimer=setTimeout(hide,2600)}},{passive:true});
-  document.addEventListener('pointerdown',e=>{if(e.clientY<70||e.clientY>innerHeight-100)reveal()},{passive:true});
+  document.addEventListener('pointerdown',e=>{if(document.body.classList.contains('chrome-hidden')||e.clientY<70||e.clientY>innerHeight-100)reveal()},{passive:true});
   document.addEventListener('focusin',reveal);document.addEventListener('keydown',e=>{
     if((e.ctrlKey||e.metaKey)&&!e.altKey&&['+','=','-','_'].includes(e.key)&&document.activeElement===src){e.preventDefault();change(['-','_'].includes(e.key)?-1:1);return}
     if(e.key==='Escape'&&document.body.classList.contains('chrome-hidden'))reveal();
@@ -28,5 +31,5 @@
   const watched=['#panel','#con','#histPanel','#src'].map(sel=>document.querySelector(sel)).filter(Boolean);
   if(watched.length){const observer=new MutationObserver(()=>{if(interactive())reveal()});watched.forEach(node=>observer.observe(node,{attributes:true,attributeFilter:['class','open','hidden']}));}
   // Touch devices can reveal controls with a tap near either edge; avoid permanently hiding while editing.
-  if(matchMedia('(hover: none)').matches){document.body.classList.remove('chrome-hidden');}
+  if(touchOnly){document.body.classList.remove('chrome-hidden');}
 })();

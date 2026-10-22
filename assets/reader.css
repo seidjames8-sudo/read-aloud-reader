@@ -803,3 +803,16 @@ body.chrome-hidden #bar:focus-within{
 .car-lightbox img{max-width:95vw;max-height:88vh;object-fit:contain;border-radius:8px}
 .car-lightbox-close{position:absolute;top:16px;right:16px;width:44px;height:44px;border-radius:50%;border:0;background:rgba(255,255,255,.15);color:#fff;font-size:20px;cursor:pointer}
 @media (max-width:600px){.car-stage{min-height:190px;max-height:300px;aspect-ratio:4/3}.car-nav-btn{width:38px;height:38px;font-size:20px}.car-thumbs-strip{gap:4px}.car-thumb-item{flex:0 0 46px;height:38px}}
+
+/* ===== Mobile editor: keep every control (Paste, Start reading) reachable on short phones ===== */
+@media(max-width:760px){
+  /* The editor itself may scroll when the on-screen keyboard or a short screen leaves too little room. */
+  #editor{overflow-y:auto!important;overflow-x:hidden!important;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
+  /* Let the text box shrink instead of pushing the action row off screen. */
+  #editor textarea{flex:1 1 auto;min-height:160px!important;max-height:none;resize:none}
+  /* Start reading stays pinned to the bottom of the editor, always visible and tappable. */
+  #editor>.row:last-child{position:sticky;bottom:0;z-index:3;margin-top:auto;padding:8px 0 4px;background:var(--panel);border-top:1px solid var(--line)}
+  #editor>.row:last-child>span{flex:0 0 auto}
+  #editor #tPaste{flex:1 1 auto}
+  #editor #go{flex:0 0 auto}
+}
