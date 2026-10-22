@@ -28,7 +28,7 @@ Turn any text into speech while the words light up as they are spoken. **Edit te
 
 Use a Markdown link to a YouTube video. The reader shows a thumbnail first and loads the player only when you press Play.
 
-- [Example video](https://www.youtube.com/watch?v=dQw4w9WgXcQ)
+- [Example video](https://www.youtube.com/watch?v=khcF2ZQzTmY)
 
 > Replace this sample by choosing Edit text and pasting your own.`;
 const log=(...a)=>console.log('%c[ReadAloud]','color:#0f6cbd;font-weight:bold',...a),warn=(...a)=>console.warn('[ReadAloud]',...a);
@@ -1136,7 +1136,7 @@ Images and slideshow carousels load automatically from any \`.fandom.com\` wiki 
 
 Use a Markdown link to a YouTube video. The reader shows a thumbnail first and loads the player only when you press Play.
 
-- [Example video](https://www.youtube.com/watch?v=dQw4w9WgXcQ)
+- [Example video](https://www.youtube.com/watch?v=khcF2ZQzTmY)
 
 > Replace this sample by choosing Edit text and pasting your own.`;
 const BUILTIN=[{n:'Fandom Carousel & YouTube Demo',t:FANDOM_SAMPLE},{n:'Markdown Image & Link Sample',t:MD_SAMPLE_TEXT}];
