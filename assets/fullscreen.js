@@ -15,6 +15,9 @@
     if(pb)pb.textContent=on?'Exit full screen':'Enter full screen';
     setTimeout(()=>{if(typeof layout==='function')layout()},150);
   }
+  // Timeout for fullscreen API calls that may hang when blocked
+  let fsTimeout=null;
+  function clearFsTimeout(){if(fsTimeout)clearTimeout(fsTimeout);fsTimeout=null}
   async function toggle(auto){
     if(isFS()){try{await (document.exitFullscreen||document.webkitExitFullscreen).call(document)}catch(e){}sync();return}
     if(B.contains('immersive')){B.remove('immersive');sync();return}
@@ -22,11 +25,20 @@
     if(req){
       try{
         const r=req.call(root,{navigationUI:'hide'});
-        if(r&&r.then)await r;
+        if(r&&r.then){
+          // Race the fullscreen promise against a timeout so we never hang
+          await Promise.race([r, new Promise((_,reject)=>{
+            fsTimeout=setTimeout(()=>{clearFsTimeout();reject(new Error('fullscreen timeout'))}, 500);
+          })]);
+        }
+        clearFsTimeout();
         // Verify fullscreen actually activated; some browsers resolve the promise but deny the request
         if(isFS()){sync();return}
         if(typeof log==='function')log('Full screen request resolved but not active');
-      }catch(e){if(typeof log==='function')log('Full screen refused:',(e&&e.message)||e)}
+      }catch(e){
+        clearFsTimeout();
+        if(typeof log==='function')log('Full screen refused:',(e&&e.message)||e);
+      }
     }
     // Fall back to immersive mode (hide toolbar) when real full screen is unavailable
     if(auto===true){B.add('immersive');sync();return}
