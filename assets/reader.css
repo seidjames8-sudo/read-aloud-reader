@@ -632,6 +632,13 @@ body.app-fullscreen #app, body.app-fullscreen .app, body.app-fullscreen main{min
 #fsExit{display:none;position:fixed;top:calc(8px + env(safe-area-inset-top,0px));right:10px;z-index:900;opacity:.85;border-radius:999px;padding:6px 14px}
 body.immersive #fsExit{display:inline-flex}
 body.immersive header{display:none!important}
+body.immersive #prog{display:none!important}
+body.immersive #bar{display:none!important}
+body.immersive #scrim{display:none!important}
+body.immersive #tip{display:none!important}
+body.immersive #resume{display:none!important}
+body.immersive #floatChap{display:none!important}
+body.immersive #chapDrawer{display:none!important}
 .fs-i{font-size:1.05em;line-height:1}
 @media(max-width:760px){.fs-t{display:none}#fullscreenBtn{min-width:40px;padding:6px 10px}}
 .imgfail .retry{padding:4px 12px;min-height:32px}

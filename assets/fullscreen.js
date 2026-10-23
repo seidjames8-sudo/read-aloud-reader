@@ -20,10 +20,16 @@
     if(B.contains('immersive')){B.remove('immersive');sync();return}
     const req=root.requestFullscreen||root.webkitRequestFullscreen;
     if(req){
-      try{const r=req.call(root,{navigationUI:'hide'});if(r&&r.then)await r;sync();return}
-      catch(e){if(typeof log==='function')log('Full screen refused:',(e&&e.message)||e)}
+      try{
+        const r=req.call(root,{navigationUI:'hide'});
+        if(r&&r.then)await r;
+        // Verify fullscreen actually activated; some browsers resolve the promise but deny the request
+        if(isFS()){sync();return}
+        if(typeof log==='function')log('Full screen request resolved but not active');
+      }catch(e){if(typeof log==='function')log('Full screen refused:',(e&&e.message)||e)}
     }
-    if(auto===true){sync();return}
+    // Fall back to immersive mode (hide toolbar) when real full screen is unavailable
+    if(auto===true){B.add('immersive');sync();return}
     B.add('immersive');sync();
     if(typeof toast==='function')toast('Full screen is blocked here, so the toolbar is hidden instead. Press Esc or tap Exit to return.');
   }
@@ -31,7 +37,7 @@
   btn.addEventListener('click',()=>toggle());ex.addEventListener('click',()=>toggle());
   if(pb)pb.addEventListener('click',()=>toggle());
   document.addEventListener('fullscreenchange',sync);document.addEventListener('webkitfullscreenchange',sync);
-  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&B.contains('immersive')&&!isFS()){B.remove('immersive');sync()}});
+  document.addEventListener('keydown',e=>{if(e.key==='Escape'){if(B.contains('immersive')&&!isFS()){B.remove('immersive');sync()}else if(isFS()&&!document.fullscreenElement&&!document.webkitFullscreenElement){sync()}}});
   /* optional: enter full screen automatically when reading starts (the play press counts as the required user gesture) */
   if(au){
     au.checked=load('pf-fsauto')==='1';au.onchange=()=>store('pf-fsauto',au.checked?'1':'0');
