@@ -37,7 +37,13 @@
   btn.addEventListener('click',()=>toggle());ex.addEventListener('click',()=>toggle());
   if(pb)pb.addEventListener('click',()=>toggle());
   document.addEventListener('fullscreenchange',sync);document.addEventListener('webkitfullscreenchange',sync);
-  document.addEventListener('keydown',e=>{if(e.key==='Escape'){if(B.contains('immersive')&&!isFS()){B.remove('immersive');sync()}else if(isFS()&&!document.fullscreenElement&&!document.webkitFullscreenElement){sync()}}});
+  document.addEventListener('keydown',e=>{
+    if(e.key==='Escape'){if(B.contains('immersive')&&!isFS()){B.remove('immersive');sync()}else if(isFS()&&!document.fullscreenElement&&!document.webkitFullscreenElement){sync()}}
+    // F key toggles full screen (primary shortcut, also registered in core.js keyboard shortcuts)
+    else if(e.key==='f'||e.key==='F'){if(!e.ctrlKey&&!e.altKey&&!e.metaKey&&!(e.target instanceof HTMLInputElement)&&!(e.target instanceof HTMLTextAreaElement)){
+      e.preventDefault();toggle();
+    }}
+  });
   /* optional: enter full screen automatically when reading starts (the play press counts as the required user gesture) */
   if(au){
     au.checked=load('pf-fsauto')==='1';au.onchange=()=>store('pf-fsauto',au.checked?'1':'0');
