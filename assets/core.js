@@ -224,6 +224,13 @@ function fill(el,s,pi){
   plain(s.slice(last));
   parts.forEach(pt=>{
     if(pt.img){el.appendChild(makeImg(pt.img));return}
+    /* Bold and italic content is inline Markdown too: **[Title](url)** must keep its link. */
+    if(pt.tag==='strong'||pt.tag==='em'){
+      const n=document.createElement(pt.tag);
+      fill(n,pt.t,pi);
+      el.appendChild(n);
+      return;
+    }
     if(pt.tag==='a'&&pt.href&&ytOn()&&youtubeVideoId(pt.href)){
       const lab=String(pt.t||'').replace(/\s+/g,' ').trim();
       if(solo){const card=makeYouTubeCard(pt.href,lab);if(card){el.appendChild(card);return}}
