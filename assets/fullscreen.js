@@ -41,20 +41,17 @@
       }
     }
     // Fall back to immersive mode (hide toolbar) when real full screen is unavailable
-    if(auto===true){B.add('immersive');sync();return}
     B.add('immersive');sync();
-    if(typeof toast==='function')toast('Full screen is blocked here, so the toolbar is hidden instead. Press Esc or tap Exit to return.');
+    if(auto!==true&&typeof toast==='function')toast('Full screen is blocked here, so the toolbar is hidden instead. Press Esc or tap Exit to return.');
   }
   window.toggleFS=()=>toggle();
   btn.addEventListener('click',()=>toggle());ex.addEventListener('click',()=>toggle());
   if(pb)pb.addEventListener('click',()=>toggle());
   document.addEventListener('fullscreenchange',sync);document.addEventListener('webkitfullscreenchange',sync);
   document.addEventListener('keydown',e=>{
-    if(e.key==='Escape'){if(B.contains('immersive')&&!isFS()){B.remove('immersive');sync()}else if(isFS()&&!document.fullscreenElement&&!document.webkitFullscreenElement){sync()}}
-    // F key toggles full screen (primary shortcut, also registered in core.js keyboard shortcuts)
-    else if(e.key==='f'||e.key==='F'){if(!e.ctrlKey&&!e.altKey&&!e.metaKey&&!(e.target instanceof HTMLInputElement)&&!(e.target instanceof HTMLTextAreaElement)){
-      e.preventDefault();toggle();
-    }}
+    /* F is the full-screen shortcut in core.js (ACTS.fs, rebindable); handling it here too toggled twice. */
+    if(e.key==='Escape'&&B.contains('immersive')&&!isFS()){B.remove('immersive');sync()}
+    else if(e.key==='Escape'&&isFS()&&!document.fullscreenElement&&!document.webkitFullscreenElement){sync()}
   });
   /* optional: enter full screen automatically when reading starts (the play press counts as the required user gesture) */
   if(au){

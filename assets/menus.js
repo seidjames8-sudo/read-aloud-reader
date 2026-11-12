@@ -166,10 +166,11 @@
   const SEL_ICON={
     read:'<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4z" fill="currentColor"/><path d="M16 9a4 4 0 0 1 0 6M18.5 6.5a8 8 0 0 1 0 11" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
     hl:'<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M4 20h4l11-11-4-4L4 16v4z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M3 22h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
-    copy:'<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2" fill="none" stroke="currentColor" stroke-width="2"/></svg>'
+    copy:'<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2" fill="none" stroke="currentColor" stroke-width="2"/></svg>',
+    look:'<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M15.5 15.5 21 21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>'
   };
-  const SEL_LABEL={read:'Read from here',hl:'Highlight',copy:'Copy'};
-  ['read','hl','copy'].forEach(k=>{
+  const SEL_LABEL={read:'Read from here',hl:'Highlight',copy:'Copy',look:'Look up'};
+  ['read','hl','copy','look'].forEach(k=>{
     const b=document.createElement('button');b.type='button';b.dataset.a=k;
     b.setAttribute('aria-label',SEL_LABEL[k]);b.title=SEL_LABEL[k];b.innerHTML=SEL_ICON[k];
     selBar.appendChild(b);
@@ -214,6 +215,7 @@
     if(a==='read')readFrom(R.startContainer);
     else if(a==='hl'){getSelection().removeAllRanges();window.commitHighlight(R,text)}
     else if(a==='copy')copyText(text);
+    else if(a==='look')window.open('https://www.google.com/search?q=define+'+encodeURIComponent(text),'_blank','noopener');
   });
 
   /* Desktop: right-click inside the reading text only; native menu elsewhere */

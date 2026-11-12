@@ -70,11 +70,15 @@
     return fig;
   }
   async function fandomPic(host,file){
-    const key='fd:'+host+'/'+file,saved=load(key);if(saved)return saved;
+    const key='fd:'+host+'/'+file,saved=load(key);
+    /* /wiki/Special:FilePath answers 403 on Fandom, so a saved link of that shape is
+       a broken picture left by an older version: ignore it and ask the API again. */
+    if(saved&&!/\/wiki\/Special:(?:FilePath|Redirect)\//i.test(saved))return saved;
     const r=await fetch('https://'+host+'/api.php?action=query&titles='+encodeURIComponent('File:'+file)+'&prop=imageinfo&iiprop=url&iiurlwidth=480&format=json&origin=*');
     if(!r.ok)throw new Error('HTTP '+r.status);
     const j=await r.json(),pg=j.query&&j.query.pages&&Object.values(j.query.pages)[0],ii=pg&&pg.imageinfo&&pg.imageinfo[0];
-    const u=(ii&&(ii.thumburl||ii.url))||('https://'+host+'/wiki/Special:FilePath/'+encodeURIComponent(file));
+    const u=ii&&(ii.thumburl||ii.url);
+    if(!u)throw new Error('no picture URL');
     store(key,u);return u;
   }
   async function work(d){

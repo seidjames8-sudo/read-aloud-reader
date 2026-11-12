@@ -459,7 +459,6 @@ function speak(from,to=Infinity){
     if(tries===0&&v&&isBad(v.name)){const b=fallbackVoice();if(b&&b!==v){log(`"${v.name}" failed earlier in this browser, using "${b.name}" instead. Run resetVoiceFailures() in the console to retry it.`);v=b}}
     if(tries===2){const b=fallbackVoice();if(b)v=b}
     if(tries>=3){const l=voices.find(x=>x.localService);if(l)v=l}
-    const origV=v;
     const det=detectLang(txt),multi=v&&/multilingual/i.test(v.name);
     if(v&&det&&!multi&&!v.lang.toLowerCase().startsWith(det.slice(0,2))){
       const alt=voices.find(x=>x.lang.toLowerCase().startsWith(det.slice(0,2)));
@@ -624,29 +623,19 @@ ss.onvoiceschanged=loadVoices;loadVoices();
 setTimeout(()=>{if(!voices.length)loadVoices()},1500);
 window.diagnose=()=>{loadVoices();log('Type diagnose() any time. speaking:',ss.speaking,'paused:',ss.paused,'pending:',ss.pending)};
 
-/* selection */
-const tip=$('#tip');let selA=-1,selB=-1;
-function checkSel(){
+/* selection: the one floating toolbar for a selection is #selBar, built in menus.js */
+function selectionRange(){
   const s=getSelection();
-  if(!s.rangeCount||s.isCollapsed||!$('#doc').contains(s.anchorNode)){tip.style.display='none';return}
-  const r=s.getRangeAt(0);selA=selB=-1;
-  words.forEach((w,i)=>{if(r.intersectsNode(w.el)){if(selA<0)selA=i;selB=i}});
-  if(selA<0){tip.style.display='none';return}
-  const b=r.getBoundingClientRect(),m=$('main').getBoundingClientRect();
-  tip.style.display='flex';
-  tip.style.left=Math.max(8,Math.min(b.left-m.left+b.width/2-tip.offsetWidth/2,m.width-tip.offsetWidth-8))+'px';
-  tip.style.top=(matchMedia('(pointer:coarse)').matches?b.bottom-m.top+46:Math.max(8,b.top-m.top-tip.offsetHeight-8))+'px';
+  if(!s.rangeCount||s.isCollapsed||!$('#doc').contains(s.anchorNode))return null;
+  const r=s.getRangeAt(0);let a=-1,b=-1;
+  words.forEach((w,i)=>{if(r.intersectsNode(w.el)){if(a<0)a=i;b=i}});
+  return a<0?null:{a,b};
 }
-$('#doc').addEventListener('mouseup',()=>setTimeout(checkSel,10));
-$('#doc').addEventListener('touchend',()=>setTimeout(checkSel,300));
-let selT;document.addEventListener('selectionchange',()=>{
-  if(getSelection().isCollapsed){tip.style.display='none';return}
-  if(matchMedia('(pointer:coarse)').matches){clearTimeout(selT);selT=setTimeout(checkSel,450)}});
-tip.addEventListener('mousedown',e=>e.preventDefault());
-const clear=()=>{getSelection().removeAllRanges();tip.style.display='none'};
-$('#tRead').onclick=()=>{const a=selA,b=selB;clear();mark(a);speak(a,b)};
-$('#tFrom').onclick=()=>{const a=selA;clear();mark(a);speak(a)};
-$('#tDef').onclick=()=>{const t=getSelection().toString().trim();clear();open('https://www.google.com/search?q=define+'+encodeURIComponent(t),'_blank','noopener')};
+function readSelection(){
+  const t=selectionRange();
+  if(!t){toast('Select some text first');return}
+  getSelection().removeAllRanges();mark(t.a);speak(t.a,t.b);
+}
 $('#doc').addEventListener('click',e=>{
   const w=e.target.closest('.w');
   if(w&&getSelection().isCollapsed&&focusN){if(lfMode==='fade'){if(lineDirty)computeLines();focusLine=lineOf[+w.dataset.i];updateLF()}centerWord(w)}
@@ -936,7 +925,7 @@ const ACTS={
   fUp:['Line focus up',()=>moveFocus(-1)],
   fDown:['Line focus down',()=>moveFocus(1)],
   lf:['Cycle line focus',()=>{const o=[0,1,3,5];setSeg('lf',o[(o.indexOf(focusN)+1)%o.length])}],
-  sel:['Read selection',()=>{checkSel();if(selA>=0)$('#tRead').click()}],
+  sel:['Read selection',()=>readSelection()],
   prefs:['Preferences',()=>$('#prefs').click()],
   edit:['Edit text / back',()=>$('#edit').click()],
   con:['Console',()=>$('#conBtn').click()],
