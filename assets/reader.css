@@ -490,6 +490,27 @@ body.force-desktop #hMove{top:-14px}body.force-desktop #hSize{bottom:-14px}
 }
 #netGate{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;padding:20px;background:rgba(0,0,0,.55);z-index:10001}
 #netGate[hidden]{display:none}
+/* Translate panel */
+#trGate{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;padding:20px;background:rgba(0,0,0,.55);z-index:10002;overflow:auto}
+#trGate[hidden]{display:none}
+.trCard{width:min(560px,100%);max-height:calc(100dvh - 40px);overflow:auto}
+.trNote{margin:0 0 14px;color:var(--mute);line-height:1.5;font-size:14px}
+.trFld{display:flex;flex-direction:column;gap:6px;margin:0 0 12px;font-size:13px;color:var(--mute)}
+.trFld>span{display:flex;align-items:center;gap:8px;justify-content:space-between}
+.trFld a{color:var(--acc);font-size:12px;text-decoration:none}
+.trFld a:hover{text-decoration:underline}
+.trFld input{font:inherit;padding:9px 11px;border-radius:9px;border:1px solid var(--line);background:var(--bg);color:var(--ink)}
+.trRules{margin:0 0 12px;font-size:13px;color:var(--mute)}
+.trRules summary{cursor:pointer;padding:4px 0}
+.trRules textarea{width:100%;min-height:150px;margin:8px 0;resize:vertical;font:12px/1.5 ui-monospace,Menlo,Consolas,monospace;background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:9px;padding:10px}
+.trHint{font-size:12px;color:var(--mute)}
+.trAuto{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--mute);margin:0 0 12px}
+.trHist{border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin:0 0 12px;font-size:13px}
+.trHist>.row{margin-bottom:6px}
+.trHistRow{color:var(--mute);padding:3px 0;font-size:12px}
+#trStatus{margin:0 0 10px;font-size:13px;color:var(--acc);min-height:18px}
+.trBtns{display:flex;gap:10px;justify-content:flex-end}
+.trBtns .pri:disabled{opacity:.65;cursor:progress}
 .netCard{width:min(460px,100%);background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:16px;padding:20px;box-shadow:0 20px 60px rgba(0,0,0,.4)}
 .netCard h2{margin:0 0 8px;font-size:19px}.netCard p{margin:0 0 12px;color:var(--mute);line-height:1.5;font-size:14px}
 #netUrl{font:13px/1.4 ui-monospace,Menlo,Consolas,monospace;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px 12px;overflow-wrap:anywhere;margin-bottom:12px}
